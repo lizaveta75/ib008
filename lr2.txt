@@ -1,0 +1,116 @@
+Лабораторная работа №2
+Списки контроля доступа к файлам и папкам (ACL)
+
+1. ACL прав доступа - определяют права доступа к файлу или папке для различных пользователей
+2. ACL по умолчанию - назначаются только папкам, вновь создаваемые объекты внутри такой папки наследуют ACL от родительской папки
+
+getfacl - позволяет просматривать списки контроля доступа
+setfacl - позволяет устанавливать и редактировать списки контроля доступа
+
+Примеры изменения прав доступа при помощи setfacl -m:
+До изменения ACL:
+student@alexander-VirtualBox:~$ getfacl SB008/
+# file: SB008/
+# owner: student
+# group: student
+# flags: --t
+user::rwx
+group::rwx
+other::rwx
+
+Изменение ACL:
+student@alexander-VirtualBox:~$ setfacl -m u:tmp6:rwx SB008/
+student@alexander-VirtualBox:~$ getfacl SB008/
+# file: SB008/
+# owner: student
+# group: student
+# flags: --t
+user::rwx
+user:tmp6:rwx
+group::rwx
+mask::rwx
+other::rwx
+
+Добавляем права для ещё одного пользователя:
+student@alexander-VirtualBox:~$ setfacl -m u:tmp7:rwx SB008/
+student@alexander-VirtualBox:~$ getfacl SB008/
+# file: SB008/
+# owner: student
+# group: student
+# flags: --t
+user::rwx
+user:tmp6:rwx
+user:tmp7:rwx
+group::rwx
+mask::rwx
+other::rwx
+
+Изменяем ACL для tmp7:
+student@alexander-VirtualBox:~$ setfacl -m u:tmp7:rx SB008/
+student@alexander-VirtualBox:~$ getfacl SB008/
+# file: SB008/
+# owner: student
+# group: student
+# flags: --t
+user::rwx
+user:tmp6:rwx
+user:tmp7:r-x
+group::rwx
+mask::rwx
+other::rwx
+
+Добавляем права доступа для групп:
+student@alexander-VirtualBox:~$ setfacl -m g:tempgrp:rwx SB008/
+student@alexander-VirtualBox:~$ getfacl SB008/
+# file: SB008/
+# owner: student
+# group: student
+# flags: --t
+user::rwx
+user:tmp6:rwx
+user:tmp7:r-x
+group::rwx
+group:tempgrp:rwx
+mask::rwx
+other::rwx
+
+student@alexander-VirtualBox:~$ setfacl -m g:tempgrp2:r-x SB008/
+student@alexander-VirtualBox:~$ getfacl SB008/
+# file: SB008/
+# owner: student
+# group: student
+# flags: --t
+user::rwx
+user:tmp6:rwx
+user:tmp7:r-x
+group::rwx
+group:tempgrp:rwx
+group:tempgrp2:r-x
+mask::rwx
+other::rwx
+
+При помощи chmod меняем стандартные права доступа:
+student@alexander-VirtualBox:~$ sudo chmod ugo-w SB008/
+[sudo] пароль для student: 
+student@alexander-VirtualBox:~$ ls -l
+итого 48
+drwxrwxr-x  6 student student 4096 авг 30 14:19  real
+dr-xr-xr-t+ 4 student student 4096 ноя  6 12:58  SB008
+
+Права доступа после применения команды chmod:
+student@alexander-VirtualBox:~$ getfacl SB008/
+# file: SB008/
+# owner: student
+# group: student
+# flags: --t
+user::r-x
+user:tmp6:rwx			#effective:r-x
+user:tmp7:r-x
+group::rwx			#effective:r-x
+group:tempgrp:rwx		#effective:r-x
+group:tempgrp2:r-x
+mask::r-x
+other::r-x
+
+Изменился параметр mask и эффективные права доступа (#effective:r-x)
+
